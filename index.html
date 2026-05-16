@@ -1,12 +1,1271 @@
+The complete, updated code has been packed into a single, self-contained production file. It includes all structural corrections—such as **FSMO RID Master logic**, **Global Catalog Universal Group resolution**, **mS-DS-ConsistencyGuid source anchoring**, **OAuth Consent Phishing risks**, and **Privileged Identity Management (PIM) JIT configurations**—and formats them within your existing design architecture.
+To deploy this directly to a **GitHub Pages** repository, copy the unified block below and save it locally as index.html.
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Active Directory & Entra ID — Identity Layer Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f6f1;
+    --surface: #ffffff;
+    --surface2: #f0ede6;
+    --border: #e2ddd6;
+    --text: #1a1714;
+    --muted: #8a8278;
+
+    /* AD on-prem — warm amber */
+    --ad: #c45e1a;
+    --ad-light: rgba(196,94,26,0.08);
+    --ad-mid: rgba(196,94,26,0.18);
+
+    /* Entra ID — cool azure */
+    --entra: #0f6cbd;
+    --entra-light: rgba(15,108,189,0.08);
+    --entra-mid: rgba(15,108,189,0.18);
+
+    /* Hybrid — purple bridge */
+    --hybrid: #7b3fb5;
+    --hybrid-light: rgba(123,63,181,0.08);
+
+    /* Security — red */
+    --sec: #c0392b;
+    --sec-light: rgba(192,57,43,0.08);
+
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(26,23,20,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c45e1a' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .progress-bar { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: var(--border); z-index: 200; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--ad), var(--entra)); transition: width 0.2s; }
+
+  header {
+    background: var(--text);
+    color: var(--bg);
+    padding: 56px 0 44px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::after {
+    content: 'ID';
+    position: absolute;
+    right: -20px;
+    top: -30px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 220px;
+    color: rgba(255,255,255,0.03);
+    line-height: 1;
+    pointer-events: none;
+    letter-spacing: -10px;
+  }
+
+  .container { max-width: 1080px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+
+  .header-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ad);
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: clamp(32px, 5vw, 54px);
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    margin-bottom: 18px;
+  }
+
+  h1 .on-prem { color: #f5a623; }
+  h1 .cloud { color: #5fb3f5; }
+  h1 .divider { color: rgba(255,255,255,0.2); margin: 0 8px; }
+
+  .header-desc {
+    color: rgba(248,246,241,0.55);
+    font-size: 15px;
+    max-width: 640px;
+    font-weight: 300;
+  }
+
+  .header-badges {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .hbadge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.7);
+  }
+
+  .tab-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 8px rgba(26,23,20,0.05);
+  }
+
+  .tabs {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    padding: 16px 22px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active-ad { color: var(--ad); border-bottom-color: var(--ad); }
+  .tab.active-entra { color: var(--entra); border-bottom-color: var(--entra); }
+  .tab.active-hybrid { color: var(--hybrid); border-bottom-color: var(--hybrid); }
+  .tab.active-sec { color: var(--sec); border-bottom-color: var(--sec); }
+  .tab.active-plain { color: var(--text); border-bottom-color: var(--text); }
+
+  .section { display: none; padding: 44px 0 60px; animation: rise 0.3s ease; }
+  .section.active { display: block; }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .sec-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .sec-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+  }
+
+  .sec-desc {
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 680px;
+    margin-bottom: 36px;
+    font-weight: 300;
+  }
+
+  .comp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 18px;
+    margin-bottom: 44px;
+  }
+
+  .comp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s, transform 0.2s;
+    position: relative;
+  }
+
+  .comp-card:hover {
+    box-shadow: 0 6px 24px rgba(26,23,20,0.12);
+    transform: translateY(-2px);
+  }
+
+  .comp-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    background: var(--card-accent, var(--ad));
+  }
+
+  .comp-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--card-accent, var(--ad));
+    background: var(--card-bg, var(--ad-light));
+    padding: 4px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 14px;
+  }
+
+  .comp-name {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+
+  .comp-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  .comp-analogy {
+    background: var(--surface2);
+    border-left: 3px solid var(--card-accent, var(--ad));
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 16px;
+  }
+
+  .analogy-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--card-accent, var(--ad));
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .analogy-text {
+    font-size: 12px;
+    color: var(--text);
+    font-style: italic;
+    line-height: 1.55;
+  }
+
+  .detail-rows { display: flex; flex-direction: column; gap: 6px; }
+
+  .detail-row {
+    display: flex;
+    gap: 10px;
+    font-size: 12px;
+    align-items: flex-start;
+  }
+
+  .detail-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    min-width: 72px;
+    padding-top: 2px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .detail-val { color: var(--text); line-height: 1.5; }
+
+  .arch-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 36px;
+    margin-bottom: 40px;
+    box-shadow: var(--shadow);
+  }
+
+  .arch-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .arch-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .arch-layer {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .arch-layer-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+  }
+
+  .arch-blocks { display: flex; gap: 10px; flex: 1; flex-wrap: wrap; }
+
+  .arch-block {
+    flex: 1;
+    min-width: 120px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .arch-block-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+
+  .arch-block-sub { font-size: 11px; color: var(--muted); font-weight: 300; }
+
+  .arch-arrow {
+    text-align: center;
+    font-size: 18px;
+    color: var(--muted);
+    margin: -4px 0;
+  }
+
+  .ctable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 40px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .ctable th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 14px 18px;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .ctable th:first-child { background: var(--surface2); color: var(--muted); }
+  .ctable th.ad-header { background: var(--ad-light); color: var(--ad); border-bottom: 2px solid var(--ad); }
+  .ctable th.entra-header { background: var(--entra-light); color: var(--entra); border-bottom: 2px solid var(--entra); }
+
+  .ctable td {
+    padding: 14px 18px;
+    border-top: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+
+  .ctable td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--surface2);
+    white-space: nowrap;
+  }
+
+  .ctable tr:hover td { filter: brightness(0.97); }
+
+  .timeline { position: relative; padding-left: 32px; margin-bottom: 40px; }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--ad), var(--hybrid), var(--entra));
+  }
+
+  .tl-item {
+    position: relative;
+    margin-bottom: 28px;
+  }
+
+  .tl-dot {
+    position: absolute;
+    left: -26px;
+    top: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--surface);
+    box-shadow: 0 0 0 2px var(--tl-color, var(--ad));
+    background: var(--tl-color, var(--ad));
+  }
+
+  .tl-era {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--tl-color, var(--ad));
+    margin-bottom: 4px;
+  }
+
+  .tl-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .tl-desc { font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.6; max-width: 620px; }
+
+  .sync-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .sync-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+  }
+
+  .sync-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .sync-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .sync-name { font-weight: 700; font-size: 14px; }
+  .sync-sub { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+  .sync-desc { font-size: 12px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+
+  .flow-tag {
+    display: inline-block;
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .threat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
+    margin-bottom: 40px;
+  }
+
+  .threat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--threat-color, var(--sec));
+  }
+
+  .threat-severity {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--threat-color, var(--sec));
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .threat-name { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+  .threat-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; font-weight: 300; }
+
+  .mitigations-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .mitigation-item {
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+    margin-bottom: 5px;
+    align-items: flex-start;
+  }
+
+  .mit-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .quiz-wrap { max-width: 700px; }
+
+  .quiz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+  }
+
+  .quiz-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  .quiz-q { font-weight: 600; font-size: 15px; margin-bottom: 18px; line-height: 1.45; }
+
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+
+  .quiz-opt {
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'Outfit', sans-serif;
+    text-align: left;
+    color: var(--text);
+    transition: all 0.18s;
+  }
+
+  .quiz-opt:hover:not(.disabled) { border-color: var(--ad); background: var(--ad-light); }
+  .quiz-opt.correct { background: rgba(74,222,128,0.1); border-color: #4ade80; color: #166534; font-weight: 500; }
+  .quiz-opt.wrong { background: rgba(239,68,68,0.08); border-color: #ef4444; color: #991b1b; }
+  .quiz-opt.disabled { pointer-events: none; }
+
+  .quiz-explain {
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border-radius: 8px;
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.6;
+    display: none;
+    font-weight: 300;
+  }
+
+  .quiz-explain.show { display: block; }
+  .quiz-explain strong { color: var(--text); font-weight: 600; }
+
+  .score-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow);
+  }
+
+  .score-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .score-val { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 22px; }
+
+  .cs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+  }
+
+  .cs-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--text);
+    color: var(--bg);
+    font-weight: 500;
+  }
+
+  .cs-table td {
+    padding: 11px 16px;
+    border-top: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .cs-table td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--surface2);
+    color: var(--ad);
+    white-space: nowrap;
+  }
+
+  .cs-table tr:nth-child(even) td:not(:first-child) { background: var(--surface2); }
+
+  footer {
+    background: var(--text);
+    color: rgba(248,246,241,0.4);
+    padding: 28px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+
+  footer .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+
+  @media (max-width: 680px) {
+    .comp-grid { grid-template-columns: 1fr; }
+    .threat-grid { grid-template-columns: 1fr; }
+    .sync-grid { grid-template-columns: 1fr; }
+    .arch-blocks { flex-direction: column; }
+  }
+</style>
 </head>
 <body>
-<h1>Your full HTML was provided — save this file locally.</h1>
-<p>For full fidelity, copy the original code you shared into this file.</p>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+<header>
+  <div class="container">
+    <div class="header-eyebrow">// Enterprise Identity & Access Management</div>
+    <h1>
+      Active Directory<span class="divider">↔</span><span style="color:#5fb3f5">Entra ID</span>
+    </h1>
+    <p class="header-desc">The structural architecture blueprint covering on-premises environments, cloud-native endpoints, hybrid synchronization anchors, and active mitigation protocols.</p>
+    <div class="header-badges">
+      <span class="hbadge">ntds.dit</span>
+      <span class="hbadge">SYSVOL</span>
+      <span class="hbadge">FSMO Engines</span>
+      <span class="hbadge">Entra Graph API</span>
+      <span class="hbadge">Conditional Access</span>
+      <span class="hbadge">Zero Trust Architecture</span>
+    </div>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <div class="tabs" id="tabBar">
+    <button class="tab active-ad" onclick="switchTab('ad', 'active-ad', this)">On-Prem AD</button>
+    <button class="tab" onclick="switchTab('entra', 'active-entra', this)">Entra ID</button>
+    <button class="tab" onclick="switchTab('hybrid', 'active-hybrid', this)">Hybrid & Sync</button>
+    <button class="tab" onclick="switchTab('compare', 'active-plain', this)">AD vs Entra</button>
+    <button class="tab" onclick="switchTab('security', 'active-sec', this)">Security Risks</button>
+    <button class="tab" onclick="switchTab('cheatsheet', 'active-plain', this)">Cheat Sheet</button>
+    <button class="tab" onclick="switchTab('quiz', 'active-plain', this)">Quiz</button>
+  </div>
+</div>
+
+<!-- ON-PREM AD -->
+<div class="section active" id="ad">
+  <div class="container">
+    <div class="sec-label" style="color:var(--ad)">// On-Premises Domain Architecture</div>
+    <div class="sec-title">Active Directory Domain Services (AD DS)</div>
+    <p class="sec-desc">Microsoft's legacy directory engine built on hierarchical structures. It features state machines running multi-master replication while delegating deterministic configuration and access tasks to dedicated engine roles.</p>
+
+    <div class="arch-wrap">
+      <div class="arch-title"><span>🏛️</span> AD DS Component Partitioning & FSMO Management</div>
+      <div class="arch-diagram">
+        <div class="arch-layer">
+          <div class="arch-layer-label">Clients</div>
+          <div class="arch-blocks">
+            <div class="arch-block" style="background:var(--surface2); border-color:var(--border)">
+              <div class="arch-block-name">Endpoint Node</div>
+              <div class="arch-block-sub">Queries DNS via SRV → Resolves KDC Engine</div>
+            </div>
+            <div class="arch-block" style="background:var(--surface2); border-color:var(--border)">
+              <div class="arch-block-name">Member Platform</div>
+              <div class="arch-block-sub">Evaluates GPC (DB) paired with GPT (SYSVOL)</div>
+            </div>
+          </div>
+        </div>
+        <div class="arch-arrow">↕ RPC / LDAP / SMB / Kerberos</div>
+        <div class="arch-layer">
+          <div class="arch-layer-label">Domain Controller</div>
+          <div class="arch-blocks">
+            <div class="arch-block" style="background:var(--ad-light); border-color:rgba(196,94,26,0.3)">
+              <div class="arch-block-name" style="color:var(--ad)">ntds.dit Database</div>
+              <div class="arch-block-sub">Data Store · Security Principals · Local Domains · ADIDNS Zones</div>
+            </div>
+            <div class="arch-block" style="background:var(--ad-light); border-color:rgba(196,94,26,0.3)">
+              <div class="arch-block-name" style="color:var(--ad)">SYSVOL Structure</div>
+              <div class="arch-block-sub">Policy Templates · Client Scripts · DFS-R Active Threads</div>
+            </div>
+            <div class="arch-block" style="background:var(--ad-light); border-color:rgba(196,94,26,0.3)">
+              <div class="arch-block-name" style="color:var(--ad)">FSMO Master Engines</div>
+              <div class="arch-block-sub">RID Pool Allocation · PDC Emulator · Schema State Management</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-grid">
+      <div class="comp-card" style="--card-accent:var(--ad); --card-bg:var(--ad-light)">
+        <div class="comp-filename">ntds.dit</div>
+        <div class="comp-name">The Core Identity Database</div>
+        <div class="comp-desc">An Extensible Storage Engine (ESE) single-file database architecture holding all cryptographic object metadata, operational schemas, partitions, and NT password hashes.</div>
+        <div class="comp-analogy">
+          <div class="analogy-label">// System Analogy</div>
+          <div class="analogy-text">A physical corporate master ledger. Every vault combination and personnel record is locked inside one physical room. Lose the database block, and the identity perimeter collapses.</div>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><div class="detail-key">Path</div><div class="detail-val"><code>%SystemRoot%\NTDS\ntds.dit</code></div></div>
+          <div class="detail-row"><div class="detail-key">Contents</div><div class="detail-val">User objects, schema mapping, group objects, NT hashes, ADIDNS zone data</div></div>
+          <div class="detail-row"><div class="detail-key">Backup</div><div class="detail-val">VSS-Aware System State execution. Online restoration via DSRM boot layers.</div></div>
+        </div>
+      </div>
+
+      <div class="comp-card" style="--card-accent:var(--ad); --card-bg:var(--ad-light)">
+        <div class="comp-filename">SYSVOL</div>
+        <div class="comp-name">Policy & Script Shared Storage</div>
+        <div class="comp-desc">The physical filesystem shared architecture distributed across all Domain Controllers via DFS-R. Holds policy configurations and script configurations.</div>
+        <div class="comp-analogy">
+          <div class="analogy-label">// System Analogy</div>
+          <div class="analogy-text">An enterprise operations binder replicated to each satellite branch office workspace. Keeps uniform regulations distributed and synced locally.</div>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><div class="detail-key">Path</div><div class="detail-val"><code>%SystemRoot%\SYSVOL\sysvol\&lt;domain&gt;\</code></div></div>
+          <div class="detail-row"><div class="detail-key">GPO Split</div><div class="detail-val">GPC metadata objects live in ntds.dit; physical GPT configurations live in SYSVOL.</div></div>
+          <div class="detail-row"><div class="detail-key">Sync</div><div class="detail-val">Distributed File System Replication (DFS-R) transactional engine state.</div></div>
+        </div>
+      </div>
+
+      <div class="comp-card" style="--card-accent:var(--ad); --card-bg:var(--ad-light)">
+        <div class="comp-filename">FSMO Roles</div>
+        <div class="comp-name">Deterministic Engine Directors</div>
+        <div class="comp-desc">Five single-master operation roles allocated across Domain Controllers to eliminate database convergence conflict conditions for non-transitive configurations.</div>
+        <div class="comp-analogy">
+          <div class="analogy-label">// System Analogy</div>
+          <div class="analogy-text">Corporate specialized departments. Only one notary desk distributes unique identification cards (RID Pool Master) to ensure no duplicate serials exist.</div>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><div class="detail-key">Forest Roles</div><div class="detail-val">Schema Master (Data structures), Domain Naming Master (Namespace topology)</div></div>
+          <div class="detail-row"><div class="detail-key">Domain Roles</div><div class="detail-val">PDC Emulator (Time/Auth), RID Master (Unique SIDs), Infrastructure Master</div></div>
+          <div class="detail-row"><div class="detail-key">Impact</div><div class="detail-val">RID execution failure completely halts object provisioning across the domain space.</div></div>
+        </div>
+      </div>
+
+      <div class="comp-card" style="--card-accent:#7b5ea7; --card-bg:rgba(123,94,167,0.07)">
+        <div class="comp-filename">Global Catalog</div>
+        <div class="comp-name">Cross-Domain Forest Indexer</div>
+        <div class="comp-desc">A specialized partition configuration enabling a Domain Controller to index partial attribute representations of every object inside a multi-domain forest mapping.</div>
+        <div class="detail-rows">
+          <div class="detail-row"><div class="detail-key">Purpose</div><div class="detail-val">Universal Group resolution during cross-domain authentication challenges.</div></div>
+          <div class="detail-row"><div class="detail-key">Port</div><div class="detail-val">3268 TCP (Plaintext LDAP GC) / 3269 TCP (LDAPS Protected GC Layer)</div></div>
+        </div>
+      </div>
+
+      <div class="comp-card" style="--card-accent:var(--ad); --card-bg:var(--ad-light)">
+        <div class="comp-filename">ADIDNS</div>
+        <div class="comp-name">Active Directory Integrated DNS</div>
+        <div class="comp-desc">Locator zones stored as specific partitions inside ntds.dit. Replicates via standard Active Directory threads without manual zone transfer configurations.</div>
+        <div class="detail-rows">
+          <div class="detail-row"><div class="detail-key">Core Mapping</div><div class="detail-val">SRV locator records directing clients to valid KDC, LDAP, and GC engines.</div></div>
+        </div>
+      </div>
+
+      <div class="comp-card" style="--card-accent:var(--hybrid); --card-bg:var(--hybrid-light)">
+        <div class="comp-filename">ADCS Infrastructure</div>
+        <div class="comp-name">Active Directory Certificate Services</div>
+        <div class="comp-desc">The on-premises Public Key Infrastructure (PKI) layer processing certificate requests, checking templates, and utilizing distinct ESE database objects (`.edb`).</div>
+        <div class="detail-rows">
+          <div class="detail-row"><div class="detail-key">DB Storage</div><div class="detail-val"><code>%SystemRoot%\System32\CertLog\*.edb</code></div></div>
+          <div class="detail-row"><div class="detail-key">Key Protection</div><div class="detail-val">Software layer (DPAPI Cryptography machine) or isolated HSM hardware.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ENTRA ID -->
+<div class="section" id="entra">
+  <div class="container">
+    <div class="sec-label" style="color:var(--entra)">// Cloud-Native Architecture</div>
+    <div class="sec-title">Microsoft Entra ID (Cloud Identity Engine)</div>
+    <p class="sec-desc">A flat, non-hierarchical Identity-as-a-Service system. Operations run via REST endpoints across distributed infrastructure. Access privileges reject network perimeters, opting for token verification metrics.</p>
+
+    <div class="comp-grid">
+      <div class="comp-card" style="--card-accent:var(--entra); --card-bg:var(--entra-light)">
+        <div class="comp-filename">Graph GraphAPI</div>
+        <div class="comp-name">Unified REST API Object Store</div>
+        <div class="comp-desc">Objects are stored as JSON representations managed through the Microsoft Graph engine pipeline. Direct storage file interaction is blocked.</div>
+        <div class="comp-analogy">
+          <div class="analogy-label">// System Analogy</div>
+          <div class="analogy-text">A modern banking interface. You never interact with physical account ledgers; you communicate transaction logic exclusively via authenticated application requests.</div>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><div class="detail-key">Base URI</div><div class="detail-val"><code>https://graph.microsoft.com</code></div></div>
+          <div class="detail-row"><div class="detail-key">Protocols</div><div class="detail-val">OAuth 2.0, OpenID Connect, SAML 2.0 (No native legacy Kerberos/NTLM/LDAP)</div></div>
+        </div>
+      </div>
+
+      <div class="comp-card" style="--card-accent:var(--entra); --card-bg:var(--entra-light)">
+        <div class="comp-filename">App Identities</div>
+        <div class="comp-name">Dual Identity Application Schema</div>
+        <div class="comp-desc">Every cloud application configuration uses a two-tier logical separation: the App Registration definition coupled with a local tenant Service Principal.</div>
+        <div class="comp-analogy">
+          <div class="analogy-label">// System Analogy</div>
+          <div class="analogy-text">App Registration is the blueprint for a specific security vest. The Service Principal is the physical vest checked out inside a distinct facility to grant active access.</div>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><div class="detail-key">Registration</div><div class="detail-val">Global blueprint application definition entity across all environments.</div></div>
+          <div class="detail-row"><div class="detail-key">Principal</div><div class="detail-val">The local instantiation; acts as the security principal checking token rights.</div></div>
+        </div>
+      </div>
+
+      <div class="comp-card" style="--card-accent:var(--entra); --card-bg:var(--entra-light)">
+        <div class="comp-filename">ZeroTrust Engine</div>
+        <div class="comp-name">Conditional Access & PIM Controllers</div>
+        <div class="comp-desc">A dynamic enforcement pipeline checking ambient telemetry to gate resource access. Integrates Privileged Identity Management (PIM) for on-demand role elevation.</div>
+        <div class="comp-analogy">
+          <div class="analogy-label">// System Analogy</div>
+          <div class="analogy-text">An advanced checkpoint scanner verifying biological markers, matching luggage logs, and restricting specialized access rights to time-boxed tracking windows.</div>
+        </div>
+        <div class="detail-rows">
+          <div class="detail-row"><div class="detail-key">Telemetry</div><div class="detail-val">Device state, IP location maps, identity threat metadata risks, app targets</div></div>
+          <div class="detail-row"><div class="detail-key">PIM Logic</div><div class="detail-val">Just-In-Time role requests tracking elevation states to avoid permanent admin exposure.</div></div>
+        </div>
+      </div>
+
+      <div class="comp-card" style="--card-accent:#0f6cbd; --card-bg:var(--entra-light)">
+        <div class="comp-filename">LSASS Memory Store</div>
+        <div class="comp-name">Primary Refresh Token (PRT)</div>
+        <div class="comp-desc">A modern cryptographic token bound to device TPM hardware configurations. Satisfies ongoing authorization parameters without re-triggering MFA prompt loops.</div>
+        <div class="detail-rows">
+          <div class="detail-row"><div class="detail-key">Cloud Equivalent</div><div class="detail-val">Functions like an enterprise cloud-ready Kerberos Ticket Granting Ticket (TGT).</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HYBRID & SYNC -->
+<div class="section" id="hybrid">
+  <div class="container">
+    <div class="sec-label" style="color:var(--hybrid)">// Synchronization & Directory Anchors</div>
+    <div class="sec-title">Hybrid Identity Synchronization Platforms</div>
+    <p class="sec-desc">Bridges the local schema parameters in `ntds.dit` to the distributed API structures of Entra ID. This sync pipeline is sustained by rigorous identity alignment keys.</p>
+
+    <div class="timeline">
+      <div class="tl-item" style="--tl-color:var(--ad)">
+        <div class="tl-dot"></div>
+        <div class="tl-era">Legacy Architecture Layer</div>
+        <div class="tl-title">Isolated Domain Boundaries</div>
+        <div class="tl-desc">Identities remain completely localized within local database blocks. Authorization tracks Kerberos tickets, bounded by physical firewalls.</div>
+      </div>
+      <div class="tl-item" style="--tl-color:var(--hybrid)">
+        <div class="tl-dot"></div>
+        <div class="tl-era">Hybrid Synchronized Layer</div>
+        <div class="tl-title">Entra Connect Architectural Sync</div>
+        <div class="tl-desc">Active delta threads match users. Identities correlate across directories using explicit anchor attributes to prevent split-brain duplicates.</div>
+      </div>
+      <div class="tl-item" style="--tl-color:var(--entra)">
+        <div class="tl-dot"></div>
+        <div class="tl-era">Modern Architecture Layer</div>
+        <div class="tl-title">Cloud Kerberos Trust Interoperability</div>
+        <div class="tl-desc">Pure Entra endpoints query on-premises legacy file and print resources via partial ticket metadata injections issued through cloud auth pathways.</div>
+      </div>
+    </div>
+
+    <div class="sec-title" style="font-size:18px; margin-bottom:16px;">Directory Sync Channels</div>
+    <div class="sync-grid">
+      <div class="sync-card">
+        <div class="sync-header">
+          <div class="sync-icon" style="background:var(--hybrid-light)">🔄</div>
+          <div>
+            <div class="sync-name">Password Hash Sync (PHS)</div>
+            <div class="sync-sub">Distributed Hash Processing</div>
+          </div>
+        </div>
+        <div class="sync-desc">Extracts the localized NT password hash, strips standard salt wrappers, applies PBKDF2 cryptography iterations (1000 cycles, distinct salts), and registers the final entity block in Entra ID. Authentication processes completely in the cloud.</div>
+      </div>
+
+      <div class="sync-card">
+        <div class="sync-header">
+          <div class="sync-icon" style="background:var(--hybrid-light)">🔗</div>
+          <div>
+            <div class="sync-name">Identity Attribute Anchors</div>
+            <div class="sync-sub">Correlation Logic Controls</div>
+          </div>
+        </div>
+        <div class="sync-desc">Entra Connect tracks the database entity via an unalterable tracking parameter. Modern systems swap legacy <code>objectGUID</code> logic for mutable, tenant-safe <code>mS-DS-ConsistencyGuid</code> strings to protect object references across tenant migrations.</div>
+      </div>
+
+      <div class="sync-card">
+        <div class="sync-header">
+          <div class="sync-icon" style="background:var(--entra-light)">🔑</div>
+          <div>
+            <div class="sync-name">Cloud Kerberos Trust</div>
+            <div class="sync-sub">Modern Cross-Platform Authentication</div>
+          </div>
+        </div>
+        <div class="sync-desc">Cloud-only devices bypass direct line-of-sight requirements to Domain Controllers. Entra ID writes partial Ticket Granting Ticket blocks, which are validated by local infrastructure servers via specialized domain trust objects.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDE BY SIDE COMPARE -->
+<div class="section" id="compare">
+  <div class="container">
+    <div class="sec-label" style="color:var(--text)">// Architectural Contrast Matrix</div>
+    <div class="sec-title">On-Premises AD DS vs. Cloud-Native Microsoft Entra ID</div>
+    <p class="sec-desc">A deep dive comparison of structural paradigms, identity indexing mechanics, and system policy engines.</p>
+
+    <table class="ctable">
+      <tr>
+        <th>Structural Metric</th>
+        <th class="ad-header">Active Directory Domain Services</th>
+        <th class="entra-header">Microsoft Entra ID</th>
+      </tr>
+      <tr>
+        <td>Directory Topography</td>
+        <td>Hierarchical Tree Configurations: Forests → Domains → Nested OUs</td>
+        <td>Flat Directory Mapping: Tenant-wide object groupings</td>
+      </tr>
+      <tr>
+        <td>Core Query Logic</td>
+        <td>LDAP Engine Interfaces (Ports 389 / 636)</td>
+        <td>Microsoft Graph REST API Calls (Port 443 HTTPS JSON)</td>
+      </tr>
+      <tr>
+        <td>Physical Persistence</td>
+        <td>ESE Database Engine (<code>ntds.dit</code> filesystem lock)</td>
+        <td>Distributed cloud object stores abstracting physical files</td>
+      </tr>
+      <tr>
+        <td>Policy Enforcement</td>
+        <td>SYSVOL Group Policy Object (GPO) replication loops</td>
+        <td>Conditional Access Evaluation pipelines matching JSON schemas</td>
+      </tr>
+      <tr>
+        <td>Identity Resolution Anchor</td>
+        <td>Localized object Security Identifiers (SIDs)</td>
+        <td>Globally unique REST API Directory Object GUID records</td>
+      </tr>
+      <tr>
+        <td>Privilege Lifetime</td>
+        <td>Permanent ambient security groups (Domain Admins 24/7)</td>
+        <td>Just-In-Time role activation windows governed by PIM engines</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ATTACK SURFACE & MITIGATIONS -->
+<div class="section" id="security">
+  <div class="container">
+    <div class="sec-label" style="color:var(--sec)">// Threat Landscape & Exploit Mapping</div>
+    <div class="sec-title">Advanced Identity Exploits & Mitigation Protocols</div>
+    <p class="sec-desc">Operational breakdowns of enterprise-scale identity attacks targeting database records, certificates, and modern authentication tokens, along with technical defensive remediations.</p>
+
+    <div class="threat-grid">
+      <div class="threat-card" style="--threat-color:#c0392b">
+        <div class="threat-severity">Critical Vector · Database Registry</div>
+        <div class="threat-name">DCSync / Hash Extraction</div>
+        <div class="threat-desc">Attackers abuse administrative replication parameters via RPC commands, forcing Domain Controllers to stream user password hashes out of <code>ntds.dit</code> without landing file system touches.</div>
+        <div class="mitigations-label">Technical Mitigations</div>
+        <div class="mitigation-item"><div class="mit-dot"></div><div>Audit and strip DS-Replication-Get-Changes privileges from non-DC accounts.</div></div>
+        <div class="mitigation-item"><div class="mit-dot"></div><div>Deploy Microsoft Defender for Identity (MDI) to trap unusual replication RPC queries.</div></div>
+      </div>
+
+      <div class="threat-card" style="--threat-color:#c0392b">
+        <div class="threat-severity">Critical Vector · PKI Infrastructure</div>
+        <div class="threat-name">ADCS ESC1 Abuse</div>
+        <div class="threat-desc">Misconfigured certificate templates allowing the flag <code>CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT</code> enable unprivileged users to supply arbitrary Subject Alternative Names (SANs) for Domain Admin accounts, generating rogue elevation paths via smart card authentication pathways.</div>
+        <div class="mitigations-label">Technical Mitigations</div>
+        <div class="mitigation-item"><div class="mit-dot"></div><div>Disable user-supplied SAN flags across all widely enrollable certificate templates.</div></div>
+        <div class="mitigation-item"><div class="mit-dot"></div><div>Enforce explicit Certificate Manager Approval triggers on privileged templates.</div></div>
+      </div>
+
+      <div class="threat-card" style="--threat-color:#e67e22">
+        <div class="threat-severity">High Vector · On-Prem Auth</div>
+        <div class="threat-name">Kerberoasting Engine Exploit</div>
+        <div class="threat-desc">Attackers ask for valid Kerberos Service Tickets for user accounts bound to registered Service Principal Names (SPNs). The returned service tickets are encrypted using the account's password hash, allowing brute-force cracking offline.</div>
+        <div class="mitigations-label">Technical Mitigations</div>
+        <div class="mitigation-item"><div class="mit-dot"></div><div>Transition legacy service endpoints to Group Managed Service Accounts (gMSAs) with automatic 240-character password rotation.</div></div>
+      </div>
+
+      <div class="threat-card" style="--threat-color:#e67e22">
+        <div class="threat-severity">High Vector · OAuth Architecture</div>
+        <div class="threat-name">OAuth Consent Grant Phishing</div>
+        <div class="threat-desc">Attackers trick users into approving unverified App Registrations via OAuth 2.0 permission screens. This skips standard authentication pathways, minting persistent delegate access tokens directly to malicious external servers.</div>
+        <div class="mitigations-label">Technical Mitigations</div>
+        <div class="mitigation-item"><div class="mit-dot"></div><div>Deactivate user-level OAuth application consent permissions tenant-wide.</div></div>
+        <div class="mitigation-item"><div class="mit-dot"></div><div>Route all tenant application connection queries through structural Admin Consent workflows.</div></div>
+      </div>
+
+      <div class="threat-card" style="--threat-color:#7b3fb5">
+        <div class="threat-severity">High Vector · Cloud Auth</div>
+        <div class="threat-name">PRT Token Replay Attacks</div>
+        <div class="threat-desc">Attackers grab modern Primary Refresh Tokens (PRTs) directly from endpoint memory pools (LSASS CloudAP). Replaying a valid token satisfies ambient Conditional Access checks by cloning existing multi-factor validation claims.</div>
+        <div class="mitigations-label">Technical Mitigations</div>
+        <div class="mitigation-item"><div class="mit-dot"></div><div>Mandate strict hardware TPM binding rules across all modern registered endpoints.</div></div>
+        <div class="mitigation-item"><div class="mit-dot"></div><div>Enforce Continuous Access Evaluation (CAE) tokens to trigger state revocation checks.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHEAT SHEET -->
+<div class="section" id="cheatsheet">
+  <div class="container">
+    <div class="sec-label" style="color:var(--text)">// Engineering Quick Reference</div>
+    <div class="sec-title">Enterprise Systems Engineer Interview Reference</div>
+    <p class="sec-desc">Condensed file architectures, network interfaces, and port footprints required for system assessments.</p>
+
+    <table class="cs-table">
+      <tr><th>Identity Asset</th><th>Filesystem Path / Target Endpoint</th><th>Payload Content Mapping</th><th>Core Exploitation / Risk Model</th></tr>
+      <tr><td>ntds.dit</td><td><code>%SystemRoot%\NTDS\ntds.dit</code></td><td>Directory schema data, object attributes, cryptographic hashes</td><td>DCSync extraction targets. Complete domain boundary defeat.</td></tr>
+      <tr><td>SYSVOL Shared Tree</td><td><code>%SystemRoot%\SYSVOL\sysvol\&lt;domain&gt;\</code></td><td>Group Policy Templates (GPT configurations), client login scripts</td><td>Write-access modifications enable malicious script distribution.</td></tr>
+      <tr><td>FSMO Master State</td><td>Distributed Domain Controller allocations</td><td>System configuration sync locks, unique relative identifier blocks</td><td>RID depletion conditions block all downstream user object provisioning.</td></tr>
+      <tr><td>Entra Graph Object Pool</td><td><code>graph.microsoft.com</code> (JSON payloads)</td><td>Cloud users, enterprise groups, federated app configurations</td><td>Over-privileged programmatic client secrets bypass multi-factor gating.</td></tr>
+      <tr><td>Primary Refresh Token</td><td>Volatile LSASS / CloudAP process memory</td><td>Long-lived JWT credential embedding valid multi-factor verification states</td><td>Token capture bypasses active authorization checks via state replay.</td></tr>
+    </table>
+
+    <table class="cs-table">
+      <tr><th>Protocol Specification</th><th>Network Port Configurations</th><th>Operational Capability Mapping</th><th>Domain Perimeter Mode</th></tr>
+      <tr><td>Kerberos Core Engine</td><td>Port 88 TCP/UDP</td><td>Issues Ticket Granting Tickets and platform service tickets</td><td>On-Premises Dedicated</td></tr>
+      <tr><td>LDAPS Engine Layer</td><td>Port 636 TCP</td><td>Encrypted directory data queries over TLS transport tunnels</td><td>On-Premises Dedicated</td></tr>
+      <tr><td>Global Catalog Tunnel</td><td>Port 3269 TCP</td><td>Cross-domain directory forest index reviews over TLS connections</td><td>On-Premises Dedicated</td></tr>
+      <tr><td>HTTPS Transport API</td><td>Port 443 TCP</td><td>Entra ID Graph calls, token provisioning, and administrative interaction</td><td>Cloud Distributed</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- SCENARIO QUIZ -->
+<div class="section" id="quiz">
+  <div class="container">
+    <div class="sec-label" style="color:var(--text)">// Structural Skill Verification</div>
+    <div class="sec-title">Identity Architecture Systems Assessment</div>
+    <p class="sec-desc">Scenario problems assessing directory integration layers, synchronization pipelines, and system defense parameters.</p>
+
+    <div class="score-bar">
+      <span class="score-label">VERIFIED ASSESSMENT SCORE</span>
+      <span class="score-val" id="scoreDisplay">—</span>
+      <span class="score-label" id="scoreOf"></span>
+    </div>
+
+    <div class="quiz-wrap" id="quizContainer"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <span>// Identity Architecture Mastery Blueprint</span>
+    <span id="footerScore">System Engineer Interview Prep Engine</span>
+  </div>
+</footer>
+
+<script>
+  function switchTab(name, activeClass, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => {
+      t.classList.remove('active-ad','active-entra','active-hybrid','active-sec','active-plain');
+    });
+    document.getElementById(name).classList.add('active');
+    btn.classList.add(activeClass);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  window.addEventListener('scroll', () => {
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = total > 0 ? (window.scrollY / total) * 100 : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+  });
+
+  const questions = [
+    {
+      q: "An attacker leverages an administrative credential with 'Replicating Directory Changes All' privileges on an on-premises domain but lacks server access. Which technique extracts all domain user password hashes without hitting disk files directly?",
+      opts: [
+        "Pass-the-Ticket — Hijacking existing Kerberos tickets out of LSASS process blocks.",
+        "DCSync Exploitation — Triggering standard directory replication RPC calls to stream object attributes remotely.",
+        "SYSVOL Interception — Editing domain initialization script text elements directly.",
+        "AS-REP Roasting — Forcing credential reply generation without prior validation flags."
+      ],
+      answer: 1,
+      explain: "<strong>DCSync</strong> uses standard directory replication RPC calls (like <code>DSGetNCChanges</code>) to ask for sensitive account attribute parameters (including historical NT password hashes) from a valid Domain Controller. This mimics standard multi-master database synchronization routines without leaving direct event footprints on local server drives."
+    },
+    {
+      q: "A large enterprise directory environment runs separate localized domains inside an integrated forest infrastructure. An engineer reports a localized outage where users cannot resolve cross-domain resource parameters during site authentication challenges. Which specialized component failure triggers this behavior?",
+      opts: [
+        "PDC Emulator operational offline failure.",
+        "Global Catalog server offline constraint blocking Universal Group membership parsing.",
+        "RID Pool Allocation engine exhaustion preventing session creation.",
+        "Schema Master drift forcing localized metadata mismatches."
+      ],
+      answer: 1,
+      explain: "The <strong>Global Catalog</strong> acts as a partial replica database mapping every object inside an enterprise forest structure. In multi-domain setups, it must parse Universal Group tracking attributes during active login cycles. If a local site loses its connection to a Global Catalog node, cross-domain verification processes fail."
+    },
+    {
+      q: "During a directory modernization project, an engineer needs to ensure that user identities synchronized from on-premises AD DS map cleanly to Entra ID cloud resources across complex downstream migrations. Which configuration choice ensures link stability?",
+      opts: [
+        "Binding the synchronization anchor exclusively to the immutable objectGUID parameter.",
+        "Leveraging the mS-DS-ConsistencyGuid attribute as the primary source anchor configuration.",
+        "Relying on userPrincipalName strings to handle all object mapping calculations.",
+        "Deploying an external Active Directory Federation Services instance to handle mapping lookups."
+      ],
+      answer: 1,
+      explain: "Using <strong>mS-DS-ConsistencyGuid</strong> as the primary source anchor is the recommended approach. Unlike the fixed, system-generated <code>objectGUID</code> which changes if an object is moved across on-premises domain boundaries, the consistency GUID is writeable. This allows admins to preserve the anchor string across migration tasks, preventing duplicate cloud identities."
+    },
+    {
+      q: "A security assessment team identifies a critical privilege escalation path inside a corporate PKI layer. A user group with minimal privileges holds enrollment parameters for an Active Directory Certificate Services template where CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT is explicitly enabled. Which vulnerability class does this match?",
+      opts: [
+        "ESC4 — Arbitrary modifications of target template security descriptors.",
+        "ESC1 — Supply of a rogue Subject Alternative Name enabling full Domain Admin impersonation.",
+        "ESC3 — Enrollment agent certificate validation certificate signature forgery.",
+        "ESC6 — Universal validation processing errors bypass cross-tenant protection rules."
+      ],
+      answer: 1,
+      explain: "The **ESC1** vulnerability occurs when a certificate template allows the requester to supply their own Subject Alternative Name (SAN) and leaves enrollment open to standard users. This configuration flaw allows an attacker to request a certificate under the identity of a 'Domain Admin', bypass password requirements via Kerberos PKINIT exchanges, and completely compromise the domain environment."
+    },
+    {
+      q: "An identity administrator wants to implement a modern Zero Trust strategy across an Entra ID tenant to reduce administrative security exposure. They need to protect the directory from permanent account compromises without generating constant alert noise. Which capability addresses this request?",
+      opts: [
+        "Deploying permanent administrative memberships across dedicated cloud-native security groups.",
+        "Implementing Privileged Identity Management (PIM) to process Just-In-Time role elevation policies.",
+        "Configuring custom Group Policy Objects within legacy SYSVOL replication paths.",
+        "Enforcing fixed token expiration properties down to 15-minute operational limits."
+      ],
+      answer: 1,
+      explain: "**Privileged Identity Management (PIM)** enables modern Zero Trust workflows by enforcing **Just-In-Time (JIT)** role elevation capabilities. This architecture ensures that specialized administrator roles (like Global Administrator) remain unassigned until an engineer explicitly requests access. The request requires approval and logs an explicit audit trail, eliminating permanent 'always-on' high-privilege accounts."
+    }
+  ];
+
+  let score = 0;
+  let answered = 0;
+
+  function renderQuiz() {
+    const c = document.getElementById('quizContainer');
+    questions.forEach((q, qi) => {
+      const div = document.createElement('div');
+      div.className = 'quiz-card';
+      div.innerHTML = `
+        <div class="quiz-num">// Question ${qi + 1} of ${questions.length}</div>
+        <div class="quiz-q">${q.q}</div>
+        <div class="quiz-opts">
+          ${q.opts.map((o, oi) => `<button class="quiz-opt" onclick="answerQ(${qi},${oi},this)">${o}</button>`).join('')}
+        </div>
+        <div class="quiz-explain" id="ex-${qi}">${q.explain}</div>
+      `;
+      c.appendChild(div);
+    });
+  }
+
+  function answerQ(qi, chosen, btn) {
+    const q = questions[qi];
+    const card = btn.closest('.quiz-card');
+    const opts = card.querySelectorAll('.quiz-opt');
+    if (opts[0].classList.contains('disabled')) return;
+
+    opts.forEach((o, i) => {
+      o.classList.add('disabled');
+      if (i === q.answer) o.classList.add('correct');
+      else if (i === chosen && chosen !== q.answer) o.classList.add('wrong');
+    });
+
+    document.getElementById('ex-' + qi).classList.add('show');
+    answered++;
+    if (chosen === q.answer) score++;
+
+    document.getElementById('scoreDisplay').textContent = `${score} / ${answered}`;
+    document.getElementById('scoreOf').textContent = `${answered} of ${questions.length} completed`;
+    document.getElementById('footerScore').textContent = `Verified Score: ${score} / ${answered}`;
+  }
+
+  renderQuiz();
+</script>
+
 </body>
 </html>
+
+```
